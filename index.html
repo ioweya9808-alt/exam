@@ -1,0 +1,305 @@
+
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <title>監考看板（1920×1080，自動縮放；左欄均分＋作文可編輯）</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    /* ===== 全域：黑底、白字、微軟中黑體；以 transform 等比縮放 ===== */
+    html, body { margin:0; padding:0; background:#000; color:#fff; height:100%; overflow:hidden; }
+    body { font-family: "Microsoft JhengHei","Noto Sans TC",system-ui,-apple-system,sans-serif; }
+
+    /* ===== 自動縮放容器：把 1920×1080 舞台等比縮放置中（高度優先） ===== */
+    #viewport { position:relative; width:100vw; height:100vh; }
+    #stage-wrap { position:absolute; left:0; top:0; width:1920px; height:1080px; transform-origin: top left; }
+    #stage {
+      position:absolute; inset:0;
+      display:grid; grid-template-columns: 780px 1140px;
+    }
+
+    /* ===== 左右欄與分隔線 ===== */
+    .left  { padding: 60px 60px 40px 60px; display:grid; grid-template-rows: auto auto 1fr; }
+    .right { padding: 60px 60px 40px 40px; display:grid; grid-template-rows: auto auto 1fr auto; row-gap: 24px; }
+    .divider { position:absolute; left:780px; top:60px; bottom:60px; width:2px; background:#89a8ff; box-shadow:0 0 2px #89a8ff; }
+
+    /* ===== 日期（只月日＋星期） ===== */
+    .date-line { font-size: 48px; letter-spacing: 0.08em; }
+
+    /* ===== 左側行程（維持原字級與視覺；用 flex 均分可用高度） ===== */
+    .title { font-size: 36px; letter-spacing: 0.08em; margin: 24px 0 12px; }
+    .schedule {
+      list-style:none; padding:0; margin:0; height:100%;
+      display:flex; flex-direction:column; justify-content:space-between;  /* 上下均分 */
+    }
+    .schedule li {
+      font-size: 42px; line-height: 1.45;
+      display:flex; align-items:center; justify-content:space-between; gap: 40px;
+      padding: 4px 8px; border-radius: 8px;
+      margin: 0;
+      transition: background-color .2s, color .2s;
+    }
+    .time    { color:#e5e7eb; }
+    .subject { color:#fff; }
+    .subject[contenteditable="true"] { border-bottom: 1px dashed rgba(255,255,255,.25); }
+    .subject[contenteditable="true"]:focus { outline: 2px solid #60a5fa; background: rgba(96,165,250,.08); }
+
+    /* 當前時段高亮：底 #EAFA50、字 #EC4E1C */
+    .schedule li.current { background:#EAFA50; }
+    .schedule li.current .time,
+    .schedule li.current .subject { color:#EC4E1C; }
+
+    /* ===== 右上：注意時間掌控（只在指定時段整列顯示） ===== */
+    .top-row { display:flex; align-items:center; justify-content:space-between; gap:24px; }
+    .top-row h2 { font-size: 36px; margin:0; letter-spacing:0.08em; white-space:nowrap; }
+    #timeDisplay {
+      width: 600px; height: 120px; display:flex; align-items:center; justify-content:center;
+      border-radius: 12px; border: 1px solid #2b3b69;
+      font-feature-settings:"tnum"; font-variant-numeric: tabular-nums;
+      font-size: 80px; font-weight: 800; letter-spacing: 0.06em;
+      background:#111827; color:#fff;
+    }
+
+    /* ===== 提醒字句（48px，依你要求） ===== */
+    .notes-line {
+      font-size: 48px; color:#f0f0f0; display:flex; gap:60px; flex-wrap:wrap; margin-top: 12px;
+    }
+
+    /* ===== 座位表（藍表頭＋斑馬紋） ===== */
+    .table-wrap { align-self: start; }
+    table { width: 100%; border-collapse: collapse; }
+    thead th {
+      background: #3a66b3; color:#fff; font-size: 32px; padding: 16px 0; border: 1px solid #cbd5e1;
+      font-family: "Microsoft JhengHei","Noto Sans TC",system-ui,-apple-system,sans-serif;
+    }
+    tbody td {
+      font-size: 32px; padding: 12px 0; text-align: center;
+      border: 1px solid #3a4660; background: rgba(255,255,255,.06); min-width: 120px;
+      font-family: "Microsoft JhengHei","Noto Sans TC",system-ui,-apple-system,sans-serif;
+    }
+    tbody tr:nth-child(even) td { background: rgba(255,255,255,.12); }
+    td[contenteditable="true"]:focus { outline: 2px solid #60a5fa; background: rgba(96,165,250,.2); }
+
+    /* ===== 右下：48px 的底部列（同列：應考人數＋缺考人；下一列：＊號備註） ===== */
+    .footer { font-size: 48px; }
+    .footer .row { margin-top: 14px; display:flex; gap: 24px; flex-wrap:wrap; align-items:center; }
+    .footer input {
+      font-size: 48px; line-height: 1.3; color:#fff; background: transparent;
+      border: 1px solid rgba(255,255,255,.35); border-radius: 10px; padding: 10px 14px; width:220px;
+      font-family: "Microsoft JhengHei","Noto Sans TC",system-ui,-apple-system,sans-serif;
+    }
+    .footer .absent-label { margin-left: 32px; }
+    .footer .star-note  { margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <div id="viewport">
+    <div id="stage-wrap">
+      <div id="stage">
+        <div class="divider" aria-hidden="true"></div>
+
+        <!-- 左欄：日期＋標題＋行程（用 flex 均分高度；作文可編輯） -->
+        <section class="left">
+          <div class="date-line" id="dateText">—月—日 星期—</div>
+          <div class="title">考試時段及科目</div>
+          <ul class="schedule">
+            <li id="slot1"><span class="time">8:25–9:10</span><span class="subject" id="self1" contenteditable="true">自習</span></li>
+            <li id="slot2"><span class="time">9:20–10:05</span><span class="subject" id="sub1"  contenteditable="true">考科一</span></li>
+            <li id="slot3"><span class="time">10:15–11:00</span><span class="subject" id="self2" contenteditable="true">自習</span></li>
+            <li id="slot4"><span class="time"><strong>11:10–12:00</strong></span><span class="subject" id="sub2"  contenteditable="true"><strong>考科二</strong></span></li>
+            <li id="slot5"><span class="time">13:15–14:00</span><span class="subject" id="self3" contenteditable="true">自習</span></li>
+            <li id="slot6"><span class="time">14:10–14:55</span><span class="subject" id="sub3"  contenteditable="true">考科三</span></li>
+            <li id="slot7"><span class="time">15:10–16:00</span><span class="subject" id="essay" contenteditable="true">作文</span></li>
+          </ul>
+        </section>
+
+        <!-- 右欄：注意時間掌控（時段內顯示）＋提醒字句（48px）＋座位表＋底部列 -->
+        <section class="right">
+          <div class="top-row" id="timeRow" style="display:none;">
+            <h2>注意時間掌控</h2>
+            <div id="timeDisplay" aria-live="polite"></div>
+          </div>
+
+          <div class="notes-line">
+            <span>手機、智慧手錶置入手機箱</span>
+            <span>考試時，桌面只留文具</span>
+          </div>
+
+          <div class="table-wrap">
+            <table id="seatTable">
+              <thead><tr><th colspan="6">座位表</th></tr></thead>
+              <tbody id="seatBody"></tbody>
+            </table>
+          </div>
+
+          <div class="footer">
+            <div class="row">
+              <span>應考人數：</span>
+              <input type="number" id="candidateCount" min="0" placeholder="人" />
+              <span class="absent-label">缺考人：</span>
+              <span id="absentList"></span>
+            </div>
+            <div class="row">
+              <span id="starNote" class="star-note"></span>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ===== 自動縮放：優先以視窗高度貼齊上下，必要時退回同時容納寬高 ===== */
+    function scaleStage(){
+      const vw = window.innerWidth, vh = window.innerHeight;
+      const sw = 1920, sh = 1080;
+      let scale = vh / sh;                         // 高度優先
+      if (sw * scale > vw) scale = Math.min(vw/sw, vh/sh); // 寬度不足時回退
+      const wrap = document.getElementById("stage-wrap");
+      const tx = (vw - sw*scale)/2, ty = (vh - sh*scale)/2;
+      wrap.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
+    }
+    window.addEventListener("resize", scaleStage);
+    window.addEventListener("orientationchange", scaleStage);
+    scaleStage();
+
+    /* ===== 日期（MM月DD日 星期X；每分鐘更新） ===== */
+    const weekdayNames = ["星期日","星期一","星期二","星期三","星期四","星期五","星期六"];
+    function toYMD(date){
+      const y = date.getFullYear(), m = String(date.getMonth()+1).padStart(2,"0"), d = String(date.getDate()).padStart(2,"0");
+      return `${y}-${m}-${d}`;
+    }
+    function updateDate(){
+      const now = new Date();
+      const m = String(now.getMonth()+1).padStart(2,"0");
+      const d = String(now.getDate()).padStart(2,"0");
+      document.getElementById("dateText").textContent = `${m}月${d}日 ${weekdayNames[now.getDay()]}`;
+    }
+    updateDate();
+    setInterval(updateDate, 60_000);
+
+    /* ===== 「注意時間掌控」：僅在三段期間整列顯示 ===== */
+    function minutes(h,m){ return h*60 + m; }
+    const DISPLAY_RANGES = [
+      [minutes(7,30),  minutes(10,14)], // 07:30–10:14
+      [minutes(11,0),  minutes(11,14)], // 11:00–11:14
+      [minutes(12,0),  minutes(14,09)], // 12:00–14:09
+      [minutes(14,55), minutes(15,09)]  // 14:55–15:09
+    ];
+    function inDisplayRanges(date){
+      const t = date.getHours()*60 + date.getMinutes();
+      return DISPLAY_RANGES.some(([s,e]) => t >= s && t <= e);
+    }
+    function updateTimeRow(){
+      const now = new Date();
+      const row = document.getElementById("timeRow");
+      const box = document.getElementById("timeDisplay");
+      if(inDisplayRanges(now)){
+        const hh = String(now.getHours()).padStart(2,"0");
+        const mm = String(now.getMinutes()).padStart(2,"0");
+        const ss = String(now.getSeconds()).padStart(2,"0");
+        box.textContent = `${hh}:${mm}:${ss}`;
+        row.style.display = "flex";
+      } else {
+        row.style.display = "none";
+      }
+    }
+    updateTimeRow();
+    setInterval(updateTimeRow, 1000);
+
+    /* ===== 左側行程：目前時間自動高亮（含 15:10–16:00 作文） ===== */
+    const SLOTS = [
+      { id:"slot1", s:[8,25],  e:[9,10]  }, // 自習
+      { id:"slot2", s:[9,20],  e:[10,5]  }, // 考科一
+      { id:"slot3", s:[10,15], e:[11,0]  }, // 自習
+      { id:"slot4", s:[11,10], e:[12,0]  }, // 考科二（修正）
+      { id:"slot5", s:[13,15], e:[14,0]  }, // 自習
+      { id:"slot6", s:[14,10], e:[14,55] }, // 考科三
+      { id:"slot7", s:[15,10], e:[16,0]  }  // 作文（可編輯科目名）
+    ];
+    function minutesSinceMidnight(h,m){ return h*60 + m; }
+    function updateCurrentSlot(){
+      const now = new Date();
+      const cur = minutesSinceMidnight(now.getHours(), now.getMinutes());
+      SLOTS.forEach(x => document.getElementById(x.id).classList.remove("current"));
+      for(const x of SLOTS){
+        const s = minutesSinceMidnight(x.s[0], x.s[1]);
+        const e = minutesSinceMidnight(x.e[0], x.e[1]);
+        if(cur >= s && cur <= e){
+          document.getElementById(x.id).classList.add("current");
+          break;
+        }
+      }
+    }
+    updateCurrentSlot();
+    setInterval(updateCurrentSlot, 30_000);
+
+    /* ===== LocalStorage：依當日保存可編輯內容 ===== */
+    const todayKey = (part) => `${part}:${toYMD(new Date())}`;
+    const LS = {
+      get(k, fallback){ try{ const v = localStorage.getItem(k); return v===null?fallback:JSON.parse(v);}catch{ return fallback; } },
+      set(k, v){ localStorage.setItem(k, JSON.stringify(v)); }
+    };
+
+    /* 可編輯：三段自習 + 三個考科 + 作文（新增 essay） */
+    ["self1","sub1","self2","sub2","self3","sub3","essay"].forEach((id)=>{
+      const el = document.getElementById(id);
+      const saved = LS.get(todayKey(`subject:${id}`), null);
+      if(saved!==null) el.textContent = saved;
+      el.addEventListener("input", ()=> LS.set(todayKey(`subject:${id}`), el.textContent.trim()));
+    });
+
+    /* 應考人數（可改） */
+    const candidateCount = document.getElementById("candidateCount");
+    const savedCount = LS.get(todayKey("candidateCount"), "");
+    if(savedCount!=="") candidateCount.value = savedCount;
+    candidateCount.addEventListener("input", ()=> LS.set(todayKey("candidateCount"), candidateCount.value));
+
+    /* 固定文字：缺考人與＊號備註（如需更改，修改下列常數） */
+    const ABSENT_LIST = "5號柯紫晴";
+    const STAR_NOTE   = "＊27號黃唯晴，作文在電腦教室應試。";
+    document.getElementById("absentList").textContent = ABSENT_LIST;
+    document.getElementById("starNote").textContent   = STAR_NOTE;
+
+    /* ===== 座位表（5×6；每格可編輯；含防呆） ===== */
+    const seatBody = document.getElementById("seatBody");
+    function defaultSeats(){
+      return [
+        ["27","22","17","12","6",""],
+        ["29","23","18","13","7","1"],
+        ["30","24","19","14","8","2"],
+        ["31","25","20","15","9","3"],
+        ["32","26","21","16","10","4"]
+      ];
+    }
+    function renderSeats(data){
+      seatBody.innerHTML = "";
+      data.forEach(row=>{
+        const tr = document.createElement("tr");
+        row.forEach(val=>{
+          const td = document.createElement("td");
+          td.textContent = val;
+          td.contentEditable = "true";
+          td.addEventListener("input", saveSeats);
+          tr.appendChild(td);
+        });
+        seatBody.appendChild(tr);
+      });
+    }
+    function readSeats(){
+      return Array.from(seatBody.querySelectorAll("tr"))
+        .map(tr => Array.from(tr.querySelectorAll("td")).map(td => td.textContent.trim()));
+    }
+    function saveSeats(){ LS.set(todayKey("seats"), readSeats()); }
+    function loadSeats(){
+      const saved = LS.get(todayKey("seats"), null);
+      const hasData =
+        Array.isArray(saved) &&
+        saved.length > 0 &&
+        saved.some(row => Array.isArray(row) && row.some(cell => (cell ?? "").toString().trim() !== ""));
+      renderSeats(hasData ? saved : defaultSeats());
+    }
+    loadSeats();
+  </script>
+</body>
+</html>
