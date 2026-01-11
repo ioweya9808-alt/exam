@@ -256,8 +256,8 @@
     candidateCount.addEventListener("input", ()=> LS.set(todayKey("candidateCount"), candidateCount.value));
 
     /* 固定文字：缺考人與＊號備註（如需更改，修改下列常數） */
-    const ABSENT_LIST = "5號柯紫晴";
-    const STAR_NOTE   = "＊27號黃唯晴，作文在電腦教室應試。";
+    const ABSENT_LIST = "   ";
+    const STAR_NOTE   = "＊ ，作文在電腦教室應試。";
     document.getElementById("absentList").textContent = ABSENT_LIST;
     document.getElementById("starNote").textContent   = STAR_NOTE;
 
@@ -303,3 +303,4 @@
   </script>
 </body>
 </html>
+
