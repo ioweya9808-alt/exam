@@ -3,7 +3,7 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="utf-8" />
-  <title>監考看板（1920×1080，自動縮放；左欄均分＋作文可編輯）</title>
+  <title>監考看板（1920×1080，自動縮放；缺考與應考同列＋備註可輸入）</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     /* ===== 全域：黑底、白字、微軟中黑體；以 transform 等比縮放 ===== */
@@ -26,7 +26,7 @@
     /* ===== 日期（只月日＋星期） ===== */
     .date-line { font-size: 48px; letter-spacing: 0.08em; }
 
-    /* ===== 左側行程（維持原字級與視覺；用 flex 均分可用高度） ===== */
+    /* ===== 左側行程（維持原字級；用 flex 在可用高度「上下均分」） ===== */
     .title { font-size: 36px; letter-spacing: 0.08em; margin: 24px 0 12px; }
     .schedule {
       list-style:none; padding:0; margin:0; height:100%;
@@ -60,7 +60,7 @@
       background:#111827; color:#fff;
     }
 
-    /* ===== 提醒字句（48px，依你要求） ===== */
+    /* ===== 右側提醒字句（48px） ===== */
     .notes-line {
       font-size: 48px; color:#f0f0f0; display:flex; gap:60px; flex-wrap:wrap; margin-top: 12px;
     }
@@ -80,16 +80,35 @@
     tbody tr:nth-child(even) td { background: rgba(255,255,255,.12); }
     td[contenteditable="true"]:focus { outline: 2px solid #60a5fa; background: rgba(96,165,250,.2); }
 
-    /* ===== 右下：48px 的底部列（同列：應考人數＋缺考人；下一列：＊號備註） ===== */
-    .footer { font-size: 48px; }
-    .footer .row { margin-top: 14px; display:flex; gap: 24px; flex-wrap:wrap; align-items:center; }
+    /* ===== 底部（同列：應考人數＋缺考；下一列：備註可輸入） ===== */
+    .footer { font-size: 32px; }
+    .footer .row {
+      margin-top: 14px;
+      display:flex;
+      gap: 24px;
+      align-items:center;
+      flex-wrap: nowrap;             /* 關鍵：第一列不換行 */
+    }
     .footer input {
-      font-size: 48px; line-height: 1.3; color:#fff; background: transparent;
-      border: 1px solid rgba(255,255,255,.35); border-radius: 10px; padding: 10px 14px; width:220px;
+      font-size: 40px; line-height: 1.3; color:#fff; background: transparent;
+      border: 1px solid rgba(255,255,255,.35); border-radius: 10px; padding: 10px 14px;
       font-family: "Microsoft JhengHei","Noto Sans TC",system-ui,-apple-system,sans-serif;
     }
-    .footer .absent-label { margin-left: 32px; }
-    .footer .star-note  { margin-top: 8px; }
+    #candidateCount { width:220px; }
+    .footer .absent-label, .footer .note-label { white-space:nowrap; }
+    #absentInput {
+      flex: 1 1 auto;   /* 吃剩餘寬度 */
+      min-width: 0;
+      max-width: 100%;
+    }
+    #noteInput {
+      flex: 1 1 auto;   /* 一整列橫向延展 */
+      min-width: 0;
+      max-width: 100%;
+      font-size: 40px; line-height: 1.3; color:#fff; background: transparent;
+      border: 1px solid rgba(255,255,255,.35); border-radius: 10px; padding: 10px 14px;
+      font-family: "Microsoft JhengHei","Noto Sans TC",system-ui,-apple-system,sans-serif;
+    }
   </style>
 </head>
 <body>
@@ -98,18 +117,18 @@
       <div id="stage">
         <div class="divider" aria-hidden="true"></div>
 
-        <!-- 左欄：日期＋標題＋行程（用 flex 均分高度；作文可編輯） -->
+        <!-- 左欄：日期＋標題＋行程（用 flex 均分高度） -->
         <section class="left">
           <div class="date-line" id="dateText">—月—日 星期—</div>
           <div class="title">考試時段及科目</div>
           <ul class="schedule">
-            <li id="slot1"><span class="time">8:25–9:10</span><span class="subject" id="self1" contenteditable="true">自習</span></li>
-            <li id="slot2"><span class="time">9:20–10:05</span><span class="subject" id="sub1"  contenteditable="true">考科一</span></li>
-            <li id="slot3"><span class="time">10:15–11:00</span><span class="subject" id="self2" contenteditable="true">自習</span></li>
-            <li id="slot4"><span class="time"><strong>11:10–12:00</strong></span><span class="subject" id="sub2"  contenteditable="true"><strong>考科二</strong></span></li>
-            <li id="slot5"><span class="time">13:15–14:00</span><span class="subject" id="self3" contenteditable="true">自習</span></li>
-            <li id="slot6"><span class="time">14:10–14:55</span><span class="subject" id="sub3"  contenteditable="true">考科三</span></li>
-            <li id="slot7"><span class="time">15:10–16:00</span><span class="subject" id="essay" contenteditable="true">作文</span></li>
+            <li id="slot1"><span class="time">8:25–9:10</span><span class="subject" id="self1"  contenteditable="true">自習</span></li>
+            <li id="slot2"><span class="time">9:20–10:05</span><span class="subject" id="sub1"   contenteditable="true">考科一</span></li>
+            <li id="slot3"><span class="time">10:15–11:00</span><span class="subject" id="self2"  contenteditable="true">自習</span></li>
+            <li id="slot4"><span class="time"><strong>11:10–12:00</strong></span><span class="subject" id="sub2"   contenteditable="true"><strong>考科二</strong></span></li>
+            <li id="slot5"><span class="time">13:15–14:00</span><span class="subject" id="self3"  contenteditable="true">自習</span></li>
+            <li id="slot6"><span class="time">14:10–14:55</span><span class="subject" id="sub3"   contenteditable="true">考科三</span></li>
+            <li id="slot7"><span class="time">15:10–16:00</span><span class="subject" id="essay"  contenteditable="true">作文</span></li>
           </ul>
         </section>
 
@@ -132,15 +151,17 @@
             </table>
           </div>
 
+          <!-- 底部：同列（應考人數＋缺考）／ 下一列（備註可輸入） -->
           <div class="footer">
             <div class="row">
               <span>應考人數：</span>
               <input type="number" id="candidateCount" min="0" placeholder="人" />
-              <span class="absent-label">缺考人：</span>
-              <span id="absentList"></span>
+              <span class="absent-label">缺考：</span>
+              <input type="text" id="absentInput" placeholder="例如：12號王小明" />
             </div>
             <div class="row">
-              <span id="starNote" class="star-note"></span>
+              <span class="note-label">備註：</span>
+              <input type="text" id="noteInput" placeholder="例如：監考教師：王老師；考場：A-201" />
             </div>
           </div>
         </section>
@@ -153,7 +174,7 @@
     function scaleStage(){
       const vw = window.innerWidth, vh = window.innerHeight;
       const sw = 1920, sh = 1080;
-      let scale = vh / sh;                         // 高度優先
+      let scale = vh / sh;                          // 高度優先
       if (sw * scale > vw) scale = Math.min(vw/sw, vh/sh); // 寬度不足時回退
       const wrap = document.getElementById("stage-wrap");
       const tx = (vw - sw*scale)/2, ty = (vh - sh*scale)/2;
@@ -178,13 +199,13 @@
     updateDate();
     setInterval(updateDate, 60_000);
 
-    /* ===== 「注意時間掌控」：僅在三段期間整列顯示 ===== */
+    /* ===== 「注意時間掌控」：只在下列期間整列顯示 ===== */
     function minutes(h,m){ return h*60 + m; }
     const DISPLAY_RANGES = [
       [minutes(7,30),  minutes(10,14)], // 07:30–10:14
-      [minutes(11,0),  minutes(11,14)], // 11:00–11:14
+      [minutes(11,0),  minutes(11,09)], // 11:00–11:09
       [minutes(12,0),  minutes(14,09)], // 12:00–14:09
-      [minutes(14,55), minutes(15,09)]  // 14:55–15:09
+      [minutes(14,55), minutes(15,10)]  // 14:55–15:10
     ];
     function inDisplayRanges(date){
       const t = date.getHours()*60 + date.getMinutes();
@@ -215,7 +236,7 @@
       { id:"slot4", s:[11,10], e:[12,0]  }, // 考科二（修正）
       { id:"slot5", s:[13,15], e:[14,0]  }, // 自習
       { id:"slot6", s:[14,10], e:[14,55] }, // 考科三
-      { id:"slot7", s:[15,10], e:[16,0]  }  // 作文（可編輯科目名）
+      { id:"slot7", s:[15,10], e:[16,0]  }  // 作文
     ];
     function minutesSinceMidnight(h,m){ return h*60 + m; }
     function updateCurrentSlot(){
@@ -241,7 +262,7 @@
       set(k, v){ localStorage.setItem(k, JSON.stringify(v)); }
     };
 
-    /* 可編輯：三段自習 + 三個考科 + 作文（新增 essay） */
+    /* 可編輯：三段自習 + 三個考科 + 作文 */
     ["self1","sub1","self2","sub2","self3","sub3","essay"].forEach((id)=>{
       const el = document.getElementById(id);
       const saved = LS.get(todayKey(`subject:${id}`), null);
@@ -249,17 +270,23 @@
       el.addEventListener("input", ()=> LS.set(todayKey(`subject:${id}`), el.textContent.trim()));
     });
 
-    /* 應考人數（可改） */
+    /* 應考人數（可改、保存） */
     const candidateCount = document.getElementById("candidateCount");
     const savedCount = LS.get(todayKey("candidateCount"), "");
     if(savedCount!=="") candidateCount.value = savedCount;
     candidateCount.addEventListener("input", ()=> LS.set(todayKey("candidateCount"), candidateCount.value));
 
-    /* 固定文字：缺考人與＊號備註（如需更改，修改下列常數） */
-    const ABSENT_LIST = "   ";
-    const STAR_NOTE   = "＊ ，作文在電腦教室應試。";
-    document.getElementById("absentList").textContent = ABSENT_LIST;
-    document.getElementById("starNote").textContent   = STAR_NOTE;
+    /* 缺考（可輸入、保存） */
+    const absentInput = document.getElementById("absentInput");
+    const savedAbsent = LS.get(todayKey("absentList"), "");
+    if(savedAbsent!=="") absentInput.value = savedAbsent;
+    absentInput.addEventListener("input", ()=> LS.set(todayKey("absentList"), absentInput.value));
+
+    /* 備註（可輸入、保存） */
+    const noteInput = document.getElementById("noteInput");
+    const savedNote = LS.get(todayKey("note"), "");
+    if(savedNote!=="") noteInput.value = savedNote;
+    noteInput.addEventListener("input", ()=> LS.set(todayKey("note"), noteInput.value));
 
     /* ===== 座位表（5×6；每格可編輯；含防呆） ===== */
     const seatBody = document.getElementById("seatBody");
@@ -303,4 +330,3 @@
   </script>
 </body>
 </html>
-
