@@ -13,10 +13,7 @@
     /* ===== 自動縮放容器：把 1920×1080 舞台等比縮放置中（高度優先） ===== */
     #viewport { position:relative; width:100vw; height:100vh; }
     #stage-wrap { position:absolute; left:0; top:0; width:1920px; height:1080px; transform-origin: top left; }
-    #stage {
-      position:absolute; inset:0;
-      display:grid; grid-template-columns: 780px 1140px;
-    }
+    #stage { position:absolute; inset:0; display:grid; grid-template-columns: 780px 1140px; }
 
     /* ===== 左右欄與分隔線 ===== */
     .left  { padding: 60px 60px 40px 60px; display:grid; grid-template-rows: auto auto 1fr; }
@@ -28,10 +25,7 @@
 
     /* ===== 左側行程（維持原字級；用 flex 在可用高度上下均分） ===== */
     .title { font-size: 54px; letter-spacing: 0.08em; margin: 24px 0 12px; }
-    .schedule {
-      list-style:none; padding:0; margin:0; height:100%;
-      display:flex; flex-direction:column; justify-content:space-between;
-    }
+    .schedule { list-style:none; padding:0; margin:0; height:100%; display:flex; flex-direction:column; justify-content:space-between; }
     .schedule li {
       font-size: 54px; line-height: 1.45;
       display:flex; align-items:center; justify-content:space-between; gap: 40px;
@@ -60,9 +54,7 @@
     }
 
     /* ===== 右側提醒字句（48px） ===== */
-    .notes-line {
-      font-size: 48px; color:#f0f0f0; display:flex; gap:60px; flex-wrap:wrap; margin-top: 12px;
-    }
+    .notes-line { font-size: 48px; color:#f0f0f0; display:flex; gap:60px; flex-wrap:wrap; margin-top: 12px; }
 
     /* ===== 座位表（藍表頭＋斑馬紋） ===== */
     .table-wrap { align-self: start; }
@@ -82,9 +74,7 @@
 
     /* ===== 底部：同列（應考人數＋缺考）；下一列（備註可輸入） ===== */
     .footer { font-size: 20px; }
-    .footer .row {
-      margin-top: 14px; display:flex; gap: 24px; align-items:center; flex-wrap: nowrap;
-    }
+    .footer .row { margin-top: 14px; display:flex; gap: 24px; align-items:center; flex-wrap: nowrap; }
     .footer input {
       font-size: 36px; line-height: 1.3; color:#fff; background: transparent;
       border: 1px solid rgba(255,255,255,.35); border-radius: 10px; padding: 10px 14px;
@@ -92,8 +82,7 @@
     }
     #candidateCount { width:220px; }
     .footer .absent-label, .footer .note-label { white-space:nowrap; }
-    #absentInput { flex: 1 1 auto; min-width: 0; max-width: 100%; }
-    #noteInput   { flex: 1 1 auto; min-width: 0; max-width: 100%; }
+    #absentInput, #noteInput { flex: 1 1 auto; min-width: 0; max-width: 100%; }
 
     /* ===== 右下：浮動控制（全螢幕＋縮放） ===== */
     .float-controls {
@@ -115,7 +104,6 @@
     .fc-btn:hover { background:#1f2937; }
     .fc-label { font-size:14px; color:#cbd5e1; padding:0 6px; min-width:52px; text-align:right; }
     .icon { width:22px; height:22px; fill:none; stroke:currentColor; stroke-width:2; }
-
     @media print { .float-controls { display:none; } }
   </style>
 </head>
@@ -130,13 +118,10 @@
           <div class="date-line" id="dateText">—月—日 星期—</div>
           <div class="title">考試時段及科目</div>
           <ul class="schedule">
-            <li id="slot1"><span class="time">8:25–9:10</span><span class="subject" id="self1"  contenteditable="true">自習</span></li>
-            <li id="slot2"><span class="time">9:20–10:05</span><span class="subject" id="sub1"   contenteditable="true">考科一</span></li>
-            <li id="slot3"><span class="time">10:15–11:00</span><span class="subject" id="self2"  contenteditable="true">自習</span></li>
-            <li id="slot4"><span class="time"><strong>11:10–12:00</strong></span><span class="subject" id="sub2"   contenteditable="true"><strong>考科二</strong></span></li>
-            <li id="slot5"><span class="time">13:15–14:00</span><span class="subject" id="self3"  contenteditable="true">自習</span></li>
-            <li id="slot6"><span class="time">14:10–14:55</span><span class="subject" id="sub3"   contenteditable="true">考科三</span></li>
-            <li id="slot7"><span class="time">15:10–16:00</span><span class="subject" id="essay"  contenteditable="true">作文</span></li>
+            <li id="slot1"><span class="time">8:25–9:10</span><span class="subject" id="self1" contenteditable="true">自習</span></li>
+            <li id="slot2"><span class="time">9:20–10:05</span><span class="subject" id="sub1"  contenteditable="true">自然</span></li>
+            <li id="slot3"><span class="time">10:15–11:00</span><span class="subject" id="self2" contenteditable="true">自習</span></li>
+            <li id="slot4"><span class="time"><strong>11:10–12:00</strong></span><span class="subject" id="sub2" contenteditable="true"><strong>英語</strong></span></li>
           </ul>
         </section>
 
@@ -173,7 +158,7 @@
               <span>應考人數：</span>
               <input type="number" id="candidateCount" min="0" placeholder="人" />
               <span class="absent-label">缺考：</span>
-              <input type="text" id="absentInput" placeholder="例如：5號柯紫晴、12號王小明" />
+              <input type="text" id="absentInput" placeholder="例如：35號王小明" />
             </div>
             <div class="row">
               <span class="note-label">備註：</span>
@@ -204,20 +189,17 @@
 
   <script>
     /* ===== 自動縮放：高度優先；加入使用者縮放倍率 ===== */
-    let userZoom = 1.0;                 // 手動縮放（100%）
+    let userZoom = 1.0; // 手動縮放（100%）
     const ZOOM_STEP = 0.1, MIN_ZOOM = 0.6, MAX_ZOOM = 2.0;
-
     function scaleStage(){
       const vw = window.innerWidth, vh = window.innerHeight;
       const sw = 1920, sh = 1080;
       let baseScale = vh / sh;
       if (sw * baseScale > vw) baseScale = Math.min(vw/sw, vh/sh);
       const finalScale = baseScale * userZoom;
-
       const wrap = document.getElementById("stage-wrap");
       const tx = (vw - sw*finalScale)/2, ty = (vh - sh*finalScale)/2;
       wrap.style.transform = `translate(${tx}px, ${ty}px) scale(${finalScale})`;
-
       document.getElementById("zoomLabel").textContent = `${Math.round(userZoom*100)}%`;
     }
     window.addEventListener("resize", scaleStage);
@@ -239,13 +221,13 @@
     updateDate();
     setInterval(updateDate, 60_000);
 
-    /* ===== 「注意時間掌控」：只在三段期間整列顯示 ===== */
+    /* ===== 「注意時間掌控」：只在三段期間整列顯示（如需半天可自行調整） ===== */
     function minutes(h,m){ return h*60 + m; }
     const DISPLAY_RANGES = [
-      [minutes(7,30),  minutes(10,14)], // 07:30–10:14
-      [minutes(11,0),  minutes(11,09)], // 11:00–11:09
-      [minutes(12,0),  minutes(14,09)], // 12:00–14:09
-      [minutes(14,55), minutes(15,09)]  // 14:55–15:09
+      [minutes(7,30), minutes(9,19)],  // 07:30–09:19
+      [minutes(10,5), minutes(11,9)],  // 10:05–11:09
+      [minutes(12,0), minutes(14,9)],  // 12:00–14:09
+      [minutes(14,55), minutes(15,9)]  // 14:55–15:09
     ];
     function inDisplayRanges(date){
       const t = date.getHours()*60 + date.getMinutes();
@@ -268,26 +250,26 @@
     updateTimeRow();
     setInterval(updateTimeRow, 1000);
 
-    /* ===== 左側行程：目前時間自動高亮（含 15:10–16:00 作文） ===== */
+    /* ===== 左側行程：目前時間自動高亮（半天版：slot1～slot4） ===== */
     const SLOTS = [
-      { id:"slot1", s:[8,25],  e:[9,10]  },
-      { id:"slot2", s:[9,20],  e:[10,5]  },
-      { id:"slot3", s:[10,15], e:[11,0]  },
-      { id:"slot4", s:[11,10], e:[12,0]  },
-      { id:"slot5", s:[13,15], e:[14,0]  },
-      { id:"slot6", s:[14,10], e:[14,55] },
-      { id:"slot7", s:[15,10], e:[16,0]  }
+      { id:"slot1", s:[8,25], e:[9,10] },
+      { id:"slot2", s:[9,20], e:[10,5] },
+      { id:"slot3", s:[10,15], e:[11,0] },
+      { id:"slot4", s:[11,10], e:[12,0] }
     ];
     function minutesSinceMidnight(h,m){ return h*60 + m; }
     function updateCurrentSlot(){
       const now = new Date();
       const cur = minutesSinceMidnight(now.getHours(), now.getMinutes());
-      SLOTS.forEach(x => document.getElementById(x.id).classList.remove("current"));
+      // 先移除所有高亮（若元素不存在則略過）
+      SLOTS.forEach(x => { const el = document.getElementById(x.id); if (el) el.classList.remove("current"); });
+      // 針對當前時段加高亮（元素存在時才操作）
       for(const x of SLOTS){
         const s = minutesSinceMidnight(x.s[0], x.s[1]);
         const e = minutesSinceMidnight(x.e[0], x.e[1]);
         if(cur >= s && cur <= e){
-          document.getElementById(x.id).classList.add("current");
+          const el = document.getElementById(x.id);
+          if (el) el.classList.add("current");
           break;
         }
       }
@@ -298,13 +280,14 @@
     /* ===== LocalStorage：依當日保存可編輯內容 ===== */
     const todayKey = (part) => `${part}:${toYMD(new Date())}`;
     const LS = {
-      get(k, fallback){ try{ const v = localStorage.getItem(k); return v===null?fallback:JSON.parse(v);}catch{ return fallback; } },
+      get(k, fallback){ try{ const v = localStorage.getItem(k); return v===null?fallback:JSON.parse(v); }catch{ return fallback; } },
       set(k, v){ localStorage.setItem(k, JSON.stringify(v)); }
     };
 
-    /* 可編輯：自習／考科一／考科二／考科三／作文 */
-    ["self1","sub1","self2","sub2","self3","sub3","essay"].forEach((id)=>{
+    /* 可編輯：半天只保留自習／考科一／自習／考科二（加上 null 保護） */
+    ["self1","sub1","self2","sub2"].forEach((id)=>{
       const el = document.getElementById(id);
+      if(!el) return;
       const saved = LS.get(todayKey(`subject:${id}`), null);
       if(saved!==null) el.textContent = saved;
       el.addEventListener("input", ()=> LS.set(todayKey(`subject:${id}`), el.textContent.trim()));
@@ -314,17 +297,15 @@
     const candidateCount = document.getElementById("candidateCount");
     const absentInput   = document.getElementById("absentInput");
     const noteInput     = document.getElementById("noteInput");
-
     const savedCount  = LS.get(todayKey("candidateCount"), "");
     const savedAbsent = LS.get(todayKey("absentList"), "");
     const savedNote   = LS.get(todayKey("note"), "");
     if(savedCount!=="")  candidateCount.value = savedCount;
     if(savedAbsent!=="") absentInput.value   = savedAbsent;
     if(savedNote!=="")   noteInput.value     = savedNote;
-
     candidateCount.addEventListener("input", ()=> LS.set(todayKey("candidateCount"), candidateCount.value));
-    absentInput.addEventListener("input",    ()=> LS.set(todayKey("absentList"),   absentInput.value));
-    noteInput.addEventListener("input",      ()=> LS.set(todayKey("note"),         noteInput.value));
+    absentInput.addEventListener("input",   ()=> LS.set(todayKey("absentList"),   absentInput.value));
+    noteInput.addEventListener("input",     ()=> LS.set(todayKey("note"),         noteInput.value));
 
     /* ===== 座位表（5×6；每格可編輯；更強防呆載入） ===== */
     const seatBody = document.getElementById("seatBody");
@@ -358,15 +339,11 @@
     function saveSeats(){ LS.set(todayKey("seats"), readSeats()); }
     function loadSeats(){
       let saved = LS.get(todayKey("seats"), null);
-
       // 型狀檢查：必須是 5×6 字串矩陣
       const shapeOk = Array.isArray(saved)
-                   && saved.length === 5
-                   && saved.every(r => Array.isArray(r) && r.length === 6);
-
-      const hasContent = shapeOk
-                      && saved.flat().some(cell => (cell ?? "").toString().trim() !== "");
-
+        && saved.length === 5
+        && saved.every(r => Array.isArray(r) && r.length === 6);
+      const hasContent = shapeOk && saved.flat().some(cell => (cell ?? "").toString().trim() !== "");
       // 不合規或全空 → 回退預設並覆寫 localStorage，避免座位表空白
       if(!shapeOk || !hasContent){
         saved = defaultSeats();
@@ -375,7 +352,6 @@
       renderSeats(saved);
     }
     loadSeats();
-
     // 一鍵重置（載入預設並覆寫 localStorage）
     document.getElementById("btnResetSeats")?.addEventListener("click", ()=>{
       const preset = defaultSeats();
@@ -392,17 +368,19 @@
     const btnZoomOut = document.getElementById('btnZoomOut');
 
     function enterFullscreen(el){
-      if(el.requestFullscreen) return el.requestFullscreen();
-      if(el.webkitRequestFullscreen) return el.webkitRequestFullscreen();   // Safari/舊 Chrome 前綴
-      if(el.msRequestFullscreen) return el.msRequestFullscreen();           // 舊 Edge
+      if(el.requestFullscreen)       return el.requestFullscreen();
+      if(el.webkitRequestFullscreen) return el.webkitRequestFullscreen(); // Safari/舊 Chrome 前綴
+      if(el.msRequestFullscreen)     return el.msRequestFullscreen();     // 舊 Edge
     }
     function exitFullscreen(){
-      if(document.exitFullscreen) return document.exitFullscreen();
+      if(document.exitFullscreen)       return document.exitFullscreen();
       if(document.webkitExitFullscreen) return document.webkitExitFullscreen();
-      if(document.msExitFullscreen) return document.msExitFullscreen();
+      if(document.msExitFullscreen)     return document.msExitFullscreen();
     }
     function isFullscreen(){
-      return !!(document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement);
+      return !!(document.fullscreenElement
+             || document.webkitFullscreenElement
+             || document.msFullscreenElement);
     }
     function updateFSUI(){
       const full = isFullscreen();
@@ -420,24 +398,13 @@
         updateFSUI();
       }
     }
-    document.addEventListener('fullscreenchange', updateFSUI);
-    document.addEventListener('webkitfullscreenchange', updateFSUI);
-    document.addEventListener('msfullscreenchange', updateFSUI);
+    document.addEventListener('fullscreenchange',        updateFSUI);
+    document.addEventListener('webkitfullscreenchange',  updateFSUI);
+    document.addEventListener('msfullscreenchange',      updateFSUI);
     btnFS.addEventListener('click', toggleFullscreen);
     btnFS.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); toggleFullscreen(); } });
-
-    btnZoomIn.addEventListener('click', ()=>{
-      userZoom = Math.min(MAX_ZOOM, +(userZoom + ZOOM_STEP).toFixed(2));
-      scaleStage();
-    });
-    btnZoomOut.addEventListener('click', ()=>{
-      userZoom = Math.max(MIN_ZOOM, +(userZoom - ZOOM_STEP).toFixed(2));
-      scaleStage();
-    });
+    btnZoomIn.addEventListener('click', ()=>{ userZoom = Math.min(MAX_ZOOM, +(userZoom + ZOOM_STEP).toFixed(2)); scaleStage(); });
+    btnZoomOut.addEventListener('click', ()=>{ userZoom = Math.max(MIN_ZOOM, +(userZoom - ZOOM_STEP).toFixed(2)); scaleStage(); });
   </script>
 </body>
 </html>
-
-
-
-
