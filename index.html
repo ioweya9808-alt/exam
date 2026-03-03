@@ -2,7 +2,7 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="utf-8" />
-  <title>模擬考第一天</title>
+  <title>模擬考第二天</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     html, body { margin:0; padding:0; background:#000; color:#fff; height:100%; overflow:hidden; }
@@ -59,10 +59,10 @@
           <div class="date-line" id="dateText">—月—日 星期—</div>
           <div class="title">考試時段及科目</div>
           <ul class="schedule">
-            <li id="slot1"><span class="time">8:00–9:10</span><span class="subject" id="self1" contenteditable="true">社會</span></li>
-            <li id="slot2"><span class="time">9:20–10:40</span><span class="subject" id="sub1" contenteditable="true">數學</span></li>
-            <li id="slot3"><span class="time">10:50–12:00</span><span class="subject" id="self2" contenteditable="true">國文</span></li>
-            <li id="slot4"><span class="time">13:15–14:05</span><span class="subject" id="sub2" contenteditable="true">作文</span></li>
+            <li id="slot1"><span class="time">8:00–9:10</span><span class="subject" id="self1" contenteditable="true">自然</span></li>
+            <li id="slot2"><span class="time">9:20–10:20</span><span class="subject" id="sub1" contenteditable="true">英語</span></li>
+            <li id="slot3"><span class="time">10:30–10:35</span><span class="subject" id="self2" contenteditable="true">英聽預備</span></li>
+            <li id="slot4"><span class="time">10:35–11:00</span><span class="subject" id="sub2" contenteditable="true">聽力測驗</span></li>
           </ul>
         </section>
 
@@ -99,7 +99,7 @@
             </div>
             <div class="row">
               <span class="note-label">備註：</span>
-              <input type="text" id="noteInput" placeholder=" 27號黃唯晴在電腦教室應考作文 " />
+              <input type="text" id="noteInput" placeholder=" " />
             </div>
           </div>
         </section>
@@ -156,8 +156,8 @@
     const DISPLAY_RANGES = [
       [minutes(6,30), minutes(7,59)],
       [minutes(9,10), minutes(9,19)],
-      [minutes(10,40), minutes(10,49)],
-      [minutes(12,0), minutes(13,14)]
+      [minutes(10,20), minutes(10,34)],
+      [minutes(11,0), minutes(17,14)]
     ];
     function inDisplayRanges(date){
       const t = date.getHours()*60 + date.getMinutes();
@@ -183,9 +183,9 @@
     /* ===== 左側行程高亮 ===== */
     const SLOTS = [
       { id:"slot1", s:[8,0],  e:[9,10] },
-      { id:"slot2", s:[9,20], e:[10,40] },
-      { id:"slot3", s:[10,50],e:[12,0] },
-      { id:"slot4", s:[13,15],e:[14,5] }
+      { id:"slot2", s:[9,20], e:[10,20] },
+      { id:"slot3", s:[10,30],e:[10,35] },
+      { id:"slot4", s:[10,35],e:[11,0] }
     ];
     function minutesSinceMidnight(h,m){ return h*60 + m; }
     function updateCurrentSlot(){
@@ -365,5 +365,3 @@
   </script>
 </body>
 </html>
-
-
