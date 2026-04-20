@@ -2,7 +2,7 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="utf-8" />
-  <title>模擬考第二天</title>
+  <title>模擬考第一天</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     html, body { margin:0; padding:0; background:#000; color:#fff; height:100%; overflow:hidden; }
@@ -59,10 +59,14 @@
           <div class="date-line" id="dateText">—月—日 星期—</div>
           <div class="title">考試時段及科目</div>
           <ul class="schedule">
-            <li id="slot1"><span class="time">8:00–9:10</span><span class="subject" id="self1" contenteditable="true">自然</span></li>
-            <li id="slot2"><span class="time">9:20–10:20</span><span class="subject" id="sub1" contenteditable="true">英語</span></li>
-            <li id="slot3"><span class="time">10:30–10:35</span><span class="subject" id="self2" contenteditable="true">英聽預備</span></li>
-            <li id="slot4"><span class="time">10:35–11:00</span><span class="subject" id="sub2" contenteditable="true">聽力測驗</span></li>
+            <li id="slot1"><span class="time">8:45–8:55</span><span class="subject" id="self1"  contenteditable="true">題本說明</span></li>
+            <li id="slot2"><span class="time">8:55–10:05</span><span class="subject" id="sub1"   contenteditable="true">社會</span></li>
+            <li id="slot3"><span class="time">10:25–10:35</span><span class="subject" id="self2"  contenteditable="true">題本說明</span></li>
+            <li id="slot4"><span class="time">10:35–11:55</span><span class="subject" id="sub2"   contenteditable="true">數學</span></li>
+            <li id="slot5"><span class="time">13:35–13:45</span><span class="subject" id="self3"  contenteditable="true">題本說明</span></li>
+            <li id="slot6"><span class="time">13:45–14:55</span><span class="subject" id="sub3"   contenteditable="true">國文</span></li>
+            <li id="slot7"><span class="time">15:10–16:00</span><span class="subject" id="essay"  contenteditable="true">作文</span></li>
+
           </ul>
         </section>
 
@@ -154,10 +158,11 @@
     /* ===== 注意時間掌控 ===== */
     function minutes(h,m){ return h*60 + m; }
     const DISPLAY_RANGES = [
-      [minutes(6,30), minutes(7,59)],
-      [minutes(9,10), minutes(9,19)],
-      [minutes(10,20), minutes(10,34)],
-      [minutes(11,0), minutes(17,14)]
+      [minutes(6,30),  minutes(8,54)], // 06:30–08:54
+      [minutes(10,05),  minutes(10,34)], // 10:05–10:34
+      [minutes(11,55),  minutes(13,44)], // 11:55–13:44
+      [minutes(14,55), minutes(15,09)]  // 14:55–15:09
+
     ];
     function inDisplayRanges(date){
       const t = date.getHours()*60 + date.getMinutes();
@@ -182,10 +187,14 @@
 
     /* ===== 左側行程高亮 ===== */
     const SLOTS = [
-      { id:"slot1", s:[8,0],  e:[9,10] },
-      { id:"slot2", s:[9,20], e:[10,20] },
-      { id:"slot3", s:[10,30],e:[10,35] },
-      { id:"slot4", s:[10,35],e:[11,0] }
+      { id:"slot1", s:[8,45],  e:[8,54] },
+      { id:"slot2", s:[8,55], e:[10,5] },
+      { id:"slot3", s:[10,25],e:[10,34] },
+      { id:"slot4", s:[10,35],e:[11,55] },
+      { id:"slot5", s:[13,35],e:[13,44] },
+      { id:"slot6", s:[13,45],e:[14,55] },
+      { id:"slot7", s:[15,10],e:[16,0] }
+            
     ];
     function minutesSinceMidnight(h,m){ return h*60 + m; }
     function updateCurrentSlot(){
